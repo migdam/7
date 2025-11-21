@@ -15,9 +15,19 @@ tqdm>=4.65.0
 # alpaca-trade-api>=3.0.0
 # ib_insync>=0.9.86
 
-# Optional: For data fetching
+# Optional: For data fetching enhancements
 # yfinance>=0.2.0
 # alpha_vantage>=2.3.1
+
+# Optional: For news fetching
+# feedparser>=6.0.0
+
+# Optional: For sentiment analysis
+# vaderSentiment>=3.3.2
+# textblob>=0.17.1
+
+# Optional: For advanced analytics
+scipy>=1.10.0  # Required for risk metrics
 
 # Optional: For visualization
 # matplotlib>=3.7.0
