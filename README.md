@@ -40,6 +40,7 @@ Data → Market Analyst → News Analyst → Strategy → CIO → Risk Manager �
 
 ## Features
 
+### Core Framework
 - **Multi-Agent Architecture**: Specialized agents with clear roles
 - **Multiple LLM Providers**: OpenAI, Anthropic Claude, Ollama (local models)
 - **Structured Communication**: JSON-based agent communication
@@ -48,6 +49,23 @@ Data → Market Analyst → News Analyst → Strategy → CIO → Risk Manager �
 - **Complete Logging**: All decisions, rationales, and outcomes logged
 - **Transparent Reasoning**: Every decision is explained
 - **Modular & Extensible**: Easy to add new agents or features
+
+### 🚀 Production Enhancements (NEW!)
+
+The framework now includes **10 powerful enhancements** for professional trading:
+
+1. **Market Data Fetcher** - Real data from Yahoo Finance, Alpha Vantage, CSV
+2. **Advanced Position Sizing** - Kelly, ATR-based, Volatility-scaled, Optimal F
+3. **Portfolio Analytics** - 15+ metrics, Sharpe, Sortino, Calmar, CAGR
+4. **News Fetcher** - RSS feeds, NewsAPI, Financial Modeling Prep
+5. **Sentiment Analyzer** - Lexicon, VADER, TextBlob, Aggregated
+6. **Advanced Risk Metrics** - VaR, CVaR, Beta, Alpha, Tracking Error
+7. **Trade Analyzer** - Performance patterns, time analysis, win/loss tracking
+8. **Strategy Optimizer** - Grid/random search, parallel execution
+9. **Monitoring Dashboard** - Real-time CLI dashboard with alerts
+10. **Monte Carlo Simulator** - Robustness testing, confidence intervals
+
+📖 **[Full Enhancements Documentation →](trading_agents/enhancements/README.md)**
 
 ## Installation
 
@@ -169,6 +187,62 @@ from trading_agents.config.config_loader import load_config
 config = load_config('path/to/config.yaml')
 ```
 
+## Using Enhancements
+
+### Quick Enhancement Examples
+
+```python
+from trading_agents import TradingFirm
+from trading_agents.enhancements import *
+
+# 1. Fetch real market data
+data = get_data('AAPL', start_date='2024-01-01', end_date='2024-12-31')
+
+# 2. Get news and analyze sentiment
+news = get_news('AAPL', source='mock', limit=10)
+sentiment = analyze_news_batch(news)
+
+# 3. Run backtest with enhancements
+firm = TradingFirm(llm_provider="openai")
+firm.run_backtest(data=data, news_data=news)
+
+# 4. Advanced analytics
+results = firm.get_results()
+analytics = PortfolioAnalytics(results['equity_curve'], results['trades'])
+analytics.print_report()
+
+# 5. Risk analysis
+risk = RiskMetrics(results['equity_curve'].pct_change())
+risk.print_report()
+
+# 6. Optimize strategy parameters
+optimizer = StrategyOptimizer(backtest_function, param_grid)
+best_params = optimizer.grid_search()
+
+# 7. Monte Carlo validation
+mc = MonteCarloSimulator(backtest_function, data, n_simulations=1000)
+mc.run_simulation()
+```
+
+### Complete Enhanced System
+
+Run the full enhanced system with all 10 enhancements:
+
+```bash
+python examples/complete_enhanced_system.py
+```
+
+This demonstrates:
+- Real market data fetching
+- News integration & sentiment analysis
+- Advanced position sizing
+- Comprehensive portfolio analytics
+- Risk metrics (VaR, CVaR, Beta, Alpha)
+- Trade pattern analysis
+- Strategy optimization
+- Real-time monitoring dashboard
+- Monte Carlo robustness testing
+
 ## Project Structure
 
 ```
@@ -190,9 +264,24 @@ trading_agents/
 ├── config/              # Configuration
 │   ├── config.yaml
 │   └── config_loader.py
+├── enhancements/        # 🚀 Production enhancements
+│   ├── data_fetcher.py      # Real market data
+│   ├── position_sizer.py    # Advanced position sizing
+│   ├── portfolio_analytics.py # Performance metrics
+│   ├── news_fetcher.py      # News integration
+│   ├── sentiment_analyzer.py # Sentiment analysis
+│   ├── risk_metrics.py      # Risk calculations
+│   ├── trade_analyzer.py    # Trade analysis
+│   ├── strategy_optimizer.py # Parameter optimization
+│   ├── monitoring_dashboard.py # Live dashboard
+│   └── monte_carlo.py       # Robustness testing
 └── main.py             # Main orchestrator
 
 examples/                # Example scripts
+├── simple_backtest.py
+├── advanced_backtest_with_news.py
+├── compare_llm_providers.py
+└── complete_enhanced_system.py  # 🚀 All enhancements demo
 logs/                    # Trade logs (generated)
 tests/                   # Unit tests
 ```
