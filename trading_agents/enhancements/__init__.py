@@ -3,12 +3,7 @@ Trading Agents Enhancements Module
 Advanced features and tools for the trading framework
 """
 
-from trading_agents.enhancements.data_fetcher import (
-    YahooFinanceFetcher,
-    AlphaVantageFetcher,
-    CSVDataFetcher,
-    get_data
-)
+# Core enhancements (no optional deps)
 from trading_agents.enhancements.position_sizer import (
     PositionSizingEngine,
     FixedFractionalSizer,
@@ -22,36 +17,66 @@ from trading_agents.enhancements.portfolio_analytics import (
     PortfolioAnalytics,
     create_equity_chart_ascii
 )
-from trading_agents.enhancements.news_fetcher import (
-    RSSNewsFetcher,
-    NewsAPIFetcher,
-    FinancialModelingPrepFetcher,
-    MockNewsFetcher,
-    get_news
-)
 from trading_agents.enhancements.sentiment_analyzer import (
     LexiconBasedAnalyzer,
-    VaderSentimentAnalyzer,
-    TextBlobAnalyzer,
     AggregatedSentimentAnalyzer,
     analyze_sentiment,
     analyze_news_batch
 )
-from trading_agents.enhancements.risk_metrics import RiskMetrics
 from trading_agents.enhancements.trade_analyzer import TradeAnalyzer, analyze_trades
 from trading_agents.enhancements.strategy_optimizer import (
     StrategyOptimizer,
     RandomSearchOptimizer
 )
-from trading_agents.enhancements.monitoring_dashboard import TradingDashboard
 from trading_agents.enhancements.monte_carlo import MonteCarloSimulator
 
+# Optional: data fetcher (requires yfinance, requests)
+try:
+    from trading_agents.enhancements.data_fetcher import (
+        YahooFinanceFetcher,
+        AlphaVantageFetcher,
+        CSVDataFetcher,
+        get_data
+    )
+except ImportError:
+    pass
+
+# Optional: news fetcher (requires feedparser, requests)
+try:
+    from trading_agents.enhancements.news_fetcher import (
+        RSSNewsFetcher,
+        NewsAPIFetcher,
+        FinancialModelingPrepFetcher,
+        MockNewsFetcher,
+        get_news
+    )
+except ImportError:
+    pass
+
+# Optional: VADER and TextBlob sentiment analyzers
+try:
+    from trading_agents.enhancements.sentiment_analyzer import VaderSentimentAnalyzer
+except ImportError:
+    pass
+
+try:
+    from trading_agents.enhancements.sentiment_analyzer import TextBlobAnalyzer
+except ImportError:
+    pass
+
+# Optional: risk metrics (requires scipy)
+try:
+    from trading_agents.enhancements.risk_metrics import RiskMetrics
+except ImportError:
+    pass
+
+# Optional: monitoring dashboard
+try:
+    from trading_agents.enhancements.monitoring_dashboard import TradingDashboard
+except ImportError:
+    pass
+
 __all__ = [
-    # Data fetching
-    'YahooFinanceFetcher',
-    'AlphaVantageFetcher',
-    'CSVDataFetcher',
-    'get_data',
     # Position sizing
     'PositionSizingEngine',
     'FixedFractionalSizer',
@@ -63,29 +88,31 @@ __all__ = [
     # Portfolio analytics
     'PortfolioAnalytics',
     'create_equity_chart_ascii',
-    # News fetching
-    'RSSNewsFetcher',
-    'NewsAPIFetcher',
-    'FinancialModelingPrepFetcher',
-    'MockNewsFetcher',
-    'get_news',
     # Sentiment analysis
     'LexiconBasedAnalyzer',
-    'VaderSentimentAnalyzer',
-    'TextBlobAnalyzer',
     'AggregatedSentimentAnalyzer',
     'analyze_sentiment',
     'analyze_news_batch',
-    # Risk metrics
-    'RiskMetrics',
     # Trade analysis
     'TradeAnalyzer',
     'analyze_trades',
     # Strategy optimization
     'StrategyOptimizer',
     'RandomSearchOptimizer',
-    # Monitoring
-    'TradingDashboard',
     # Monte Carlo
-    'MonteCarloSimulator'
+    'MonteCarloSimulator',
+    # Optional (may not be available)
+    'YahooFinanceFetcher',
+    'AlphaVantageFetcher',
+    'CSVDataFetcher',
+    'get_data',
+    'RSSNewsFetcher',
+    'NewsAPIFetcher',
+    'FinancialModelingPrepFetcher',
+    'MockNewsFetcher',
+    'get_news',
+    'VaderSentimentAnalyzer',
+    'TextBlobAnalyzer',
+    'RiskMetrics',
+    'TradingDashboard',
 ]

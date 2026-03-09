@@ -74,6 +74,13 @@ class MarketEnvironment:
             commission: Commission rate (fraction)
             symbol: Trading symbol name
         """
+        if data.empty:
+            raise ValueError("DataFrame must not be empty")
+        required_columns = {'open', 'high', 'low', 'close', 'volume'}
+        missing = required_columns - set(data.columns)
+        if missing:
+            raise ValueError(f"DataFrame missing required columns: {missing}")
+
         self.data = data.copy()
         self.symbol = symbol
         self.initial_capital = initial_capital

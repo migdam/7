@@ -81,7 +81,7 @@ Be conservative. Protect capital. Better to miss opportunities than take excessi
         cash = portfolio.get('cash', 100000)
         initial_capital = portfolio.get('initial_capital', 100000)
 
-        current_drawdown = (equity - initial_capital) / initial_capital * 100
+        current_drawdown = (initial_capital - equity) / initial_capital * 100
         position_value = abs(current_position.get('size', 0)) * current_price
         exposure_pct = position_value / equity * 100 if equity > 0 else 0
 

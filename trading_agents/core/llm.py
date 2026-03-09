@@ -4,7 +4,9 @@ Supports multiple LLM providers: OpenAI, Anthropic, local models via ollama
 """
 
 import os
+import re
 import json
+import time
 from typing import Dict, Any, Optional, List
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -36,6 +38,39 @@ class BaseLLM(ABC):
         """Generate structured JSON response"""
         pass
 
+    @staticmethod
+    def _extract_json_from_text(text: str) -> Optional[Dict[str, Any]]:
+        """Extract JSON object from text that may contain non-JSON content."""
+        # Try non-greedy match first (innermost object)
+        json_match = re.search(r'\{.*?\}', text, re.DOTALL)
+        if json_match:
+            try:
+                return json.loads(json_match.group())
+            except json.JSONDecodeError:
+                pass
+
+        # Fallback: greedy match (outermost object)
+        json_match = re.search(r'\{.*\}', text, re.DOTALL)
+        if json_match:
+            try:
+                return json.loads(json_match.group())
+            except json.JSONDecodeError:
+                pass
+
+        return None
+
+    def _retry_call(self, fn, max_retries: int = 3):
+        """Retry a callable with exponential backoff."""
+        last_error = None
+        for attempt in range(max_retries + 1):
+            try:
+                return fn()
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries:
+                    time.sleep(2 ** attempt)
+        raise last_error
+
 
 class OpenAILLM(BaseLLM):
     """OpenAI API implementation"""
@@ -55,12 +90,15 @@ class OpenAILLM(BaseLLM):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens
-        )
+        def _call():
+            return self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens
+            )
+
+        response = self._retry_call(_call)
         return response.choices[0].message.content
 
     def generate_json(self, prompt: str, system_prompt: Optional[str] = None) -> Dict[str, Any]:
@@ -70,19 +108,23 @@ class OpenAILLM(BaseLLM):
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
-            response_format={"type": "json_object"}
-        )
+        def _call():
+            return self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                response_format={"type": "json_object"}
+            )
 
+        response = self._retry_call(_call)
         content = response.choices[0].message.content
         try:
             return json.loads(content)
         except json.JSONDecodeError:
-            # Fallback: try to extract JSON from text
+            extracted = self._extract_json_from_text(content)
+            if extracted is not None:
+                return extracted
             return {"response": content, "error": "Failed to parse JSON"}
 
 
@@ -99,13 +141,16 @@ class AnthropicLLM(BaseLLM):
 
     def generate(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """Generate text using Anthropic API"""
-        message = self.client.messages.create(
-            model=self.model,
-            max_tokens=self.max_tokens,
-            temperature=self.temperature,
-            system=system_prompt or "",
-            messages=[{"role": "user", "content": prompt}]
-        )
+        def _call():
+            return self.client.messages.create(
+                model=self.model,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                system=system_prompt or "",
+                messages=[{"role": "user", "content": prompt}]
+            )
+
+        message = self._retry_call(_call)
         return message.content[0].text
 
     def generate_json(self, prompt: str, system_prompt: Optional[str] = None) -> Dict[str, Any]:
@@ -118,14 +163,9 @@ class AnthropicLLM(BaseLLM):
         try:
             return json.loads(response)
         except json.JSONDecodeError:
-            # Try to extract JSON from response
-            import re
-            json_match = re.search(r'\{.*\}', response, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group())
-                except:
-                    pass
+            extracted = self._extract_json_from_text(response)
+            if extracted is not None:
+                return extracted
             return {"response": response, "error": "Failed to parse JSON"}
 
 
@@ -147,18 +187,21 @@ class OllamaLLM(BaseLLM):
         if system_prompt:
             full_prompt = f"{system_prompt}\n\n{prompt}"
 
-        response = self.requests.post(
-            f"{self.base_url}/api/generate",
-            json={
-                "model": self.model,
-                "prompt": full_prompt,
-                "stream": False,
-                "options": {
-                    "temperature": self.temperature,
-                    "num_predict": self.max_tokens
+        def _call():
+            return self.requests.post(
+                f"{self.base_url}/api/generate",
+                json={
+                    "model": self.model,
+                    "prompt": full_prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": self.temperature,
+                        "num_predict": self.max_tokens
+                    }
                 }
-            }
-        )
+            )
+
+        response = self._retry_call(_call)
 
         if response.status_code == 200:
             return response.json()["response"]
@@ -175,14 +218,9 @@ class OllamaLLM(BaseLLM):
         try:
             return json.loads(response)
         except json.JSONDecodeError:
-            # Try to extract JSON from response
-            import re
-            json_match = re.search(r'\{.*\}', response, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group())
-                except:
-                    pass
+            extracted = self._extract_json_from_text(response)
+            if extracted is not None:
+                return extracted
             return {"response": response, "error": "Failed to parse JSON"}
 
 

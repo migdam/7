@@ -38,6 +38,16 @@ class MonteCarloSimulator:
 
         self.results = []
 
+    @staticmethod
+    def _adjust_ohlc(new_data: pd.DataFrame) -> pd.DataFrame:
+        """Adjust open/high/low columns based on close prices using vectorized operations."""
+        n = len(new_data)
+        close_vals = new_data['close'].values
+        new_data['open'] = close_vals * np.random.uniform(0.99, 1.01, n)
+        new_data['high'] = close_vals * np.random.uniform(1.0, 1.02, n)
+        new_data['low'] = close_vals * np.random.uniform(0.98, 1.0, n)
+        return new_data
+
     def bootstrap_resample(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Bootstrap resample returns
@@ -61,14 +71,7 @@ class MonteCarloSimulator:
         new_data = data.copy()
         new_data['close'] = [initial_price] + list(resampled_prices)
 
-        # Adjust OHLC
-        for i in range(len(new_data)):
-            close = new_data.iloc[i]['close']
-            new_data.iloc[i, new_data.columns.get_loc('open')] = close * np.random.uniform(0.99, 1.01)
-            new_data.iloc[i, new_data.columns.get_loc('high')] = close * np.random.uniform(1.0, 1.02)
-            new_data.iloc[i, new_data.columns.get_loc('low')] = close * np.random.uniform(0.98, 1.0)
-
-        return new_data
+        return self._adjust_ohlc(new_data)
 
     def geometric_brownian_motion(
         self,
@@ -110,14 +113,7 @@ class MonteCarloSimulator:
         new_data = data.copy()
         new_data['close'] = prices
 
-        # Adjust OHLC
-        for i in range(len(new_data)):
-            close = new_data.iloc[i]['close']
-            new_data.iloc[i, new_data.columns.get_loc('open')] = close * np.random.uniform(0.99, 1.01)
-            new_data.iloc[i, new_data.columns.get_loc('high')] = close * np.random.uniform(1.0, 1.02)
-            new_data.iloc[i, new_data.columns.get_loc('low')] = close * np.random.uniform(0.98, 1.0)
-
-        return new_data
+        return self._adjust_ohlc(new_data)
 
     def run_simulation(
         self,

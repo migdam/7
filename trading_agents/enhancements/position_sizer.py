@@ -298,6 +298,16 @@ class PositionSizingEngine:
         Returns:
             Dictionary with size and metadata
         """
+        if price <= 0:
+            return {
+                'size': 0.0,
+                'position_value': 0.0,
+                'position_pct': 0.0,
+                'strategy': self.strategy_name,
+                'capital': capital,
+                'price': price
+            }
+
         size = self.strategy.calculate_size(capital, price, **context)
 
         # Calculate position value and percentage

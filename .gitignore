@@ -43,6 +43,7 @@ logs/
 
 # Data files
 data/
+!trading_agents/data/
 *.csv
 *.parquet
 *.h5

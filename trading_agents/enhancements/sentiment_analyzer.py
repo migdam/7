@@ -98,11 +98,13 @@ class LexiconBasedAnalyzer(SentimentAnalyzer):
         else:
             sentiment_label = 'neutral'
 
+        neutral_score = max(0, 1.0 - positive_score - negative_score) if total_score > 0 else 1.0
         return {
             'sentiment': sentiment_label,
             'score': round(sentiment_score, 3),
             'positive_score': round(positive_score, 2),
             'negative_score': round(negative_score, 2),
+            'neutral_score': round(neutral_score, 2),
             'confidence': round(abs(sentiment_score), 3)
         }
 
@@ -184,9 +186,15 @@ class TextBlobAnalyzer(SentimentAnalyzer):
         else:
             sentiment = 'neutral'
 
+        positive_score = max(0, polarity)
+        negative_score = max(0, -polarity)
+        neutral_score = 1.0 - abs(polarity)
         return {
             'sentiment': sentiment,
             'score': round(polarity, 3),
+            'positive_score': round(positive_score, 3),
+            'negative_score': round(negative_score, 3),
+            'neutral_score': round(neutral_score, 3),
             'subjectivity': round(subjectivity, 3),
             'confidence': round(abs(polarity), 3)
         }
@@ -277,15 +285,15 @@ def analyze_sentiment(
         analyzers = []
         try:
             analyzers.append(LexiconBasedAnalyzer())
-        except:
+        except Exception:
             pass
         try:
             analyzers.append(VaderSentimentAnalyzer())
-        except:
+        except Exception:
             pass
         try:
             analyzers.append(TextBlobAnalyzer())
-        except:
+        except Exception:
             pass
         analyzer = AggregatedSentimentAnalyzer(analyzers)
     else:

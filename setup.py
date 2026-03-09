@@ -38,6 +38,7 @@ setup(
         "anthropic>=0.18.0",
         "requests>=2.31.0",
         "tqdm>=4.65.0",
+        "scipy>=1.10.0",
     ],
     extras_require={
         "dev": [

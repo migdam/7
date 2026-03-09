@@ -51,6 +51,13 @@ class TradingFirm:
             log_dir: Directory for logs
             verbose: Print progress
         """
+        if initial_capital <= 0:
+            raise ValueError("initial_capital must be positive")
+        if max_position_size <= 0:
+            raise ValueError("max_position_size must be positive")
+        if not (0 < max_drawdown_pct <= 1):
+            raise ValueError("max_drawdown_pct must be between 0 and 1 (exclusive/inclusive)")
+
         self.verbose = verbose
 
         # Initialize LLM
