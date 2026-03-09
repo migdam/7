@@ -44,10 +44,13 @@ Data → Market Analyst → News Analyst → Strategy → CIO → Risk Manager �
 - **Multi-Agent Architecture**: Specialized agents with clear roles
 - **Multiple LLM Providers**: OpenAI, Anthropic Claude, Ollama (local models)
 - **Structured Communication**: JSON-based agent communication
-- **Risk Management**: Hard-coded failsafes and LLM-based risk assessment
-- **Paper Trading**: Pandas-based simulation environment
+- **Risk Management**: Hard-coded failsafes + LLM-based risk assessment with consistent drawdown tracking
+- **Technical Indicators**: Full suite — SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, volatility, momentum
+- **Paper Trading**: Pandas-based simulation environment with input validation
+- **LLM Resilience**: Automatic retry with exponential backoff on API failures, robust JSON extraction
 - **Complete Logging**: All decisions, rationales, and outcomes logged
 - **Transparent Reasoning**: Every decision is explained
+- **Test Coverage**: 78 unit tests across all core modules
 - **Modular & Extensible**: Easy to add new agents or features
 
 ### 🚀 Production Enhancements (NEW!)
@@ -257,14 +260,15 @@ trading_agents/
 │   ├── execution.py
 │   └── logger.py
 ├── core/                # Core components
-│   ├── llm.py          # LLM interface layer
+│   ├── llm.py          # LLM interface (retry, JSON extraction)
 │   └── market_env.py   # Trading environment simulator
 ├── data/                # Data processing
-│   └── indicators.py   # Technical indicators
+│   ├── __init__.py
+│   └── indicators.py   # Technical indicators (RSI, MACD, BB, ATR, etc.)
 ├── config/              # Configuration
 │   ├── config.yaml
 │   └── config_loader.py
-├── enhancements/        # 🚀 Production enhancements
+├── enhancements/        # Production enhancements
 │   ├── data_fetcher.py      # Real market data
 │   ├── position_sizer.py    # Advanced position sizing
 │   ├── portfolio_analytics.py # Performance metrics
@@ -277,13 +281,22 @@ trading_agents/
 │   └── monte_carlo.py       # Robustness testing
 └── main.py             # Main orchestrator
 
+tests/                   # Unit tests (78 tests)
+├── conftest.py          # Shared fixtures
+├── test_indicators.py   # Indicator calculations & signals
+├── test_market_env.py   # Environment, positions, trades
+├── test_llm.py          # JSON extraction, retry logic
+├── test_risk_manager.py # Hard limits, drawdown formula
+├── test_position_sizer.py # All sizing strategies
+├── test_sentiment.py    # Lexicon, aggregated, batch
+└── test_monte_carlo.py  # Bootstrap, GBM, confidence intervals
+
 examples/                # Example scripts
 ├── simple_backtest.py
 ├── advanced_backtest_with_news.py
 ├── compare_llm_providers.py
-└── complete_enhanced_system.py  # 🚀 All enhancements demo
+└── complete_enhanced_system.py  # All enhancements demo
 logs/                    # Trade logs (generated)
-tests/                   # Unit tests
 ```
 
 ## Advanced Usage
@@ -405,20 +418,45 @@ print(f"Win Rate: {metrics['win_rate']*100:.1f}%")
 - [x] Logging
 - [x] Multi-provider LLM support
 
-### Phase 2 - Full Framework (Next)
-- [ ] Real news integration (RSS, APIs)
-- [ ] Sentiment analysis
-- [ ] Advanced position sizing (Kelly criterion, ATR-based)
-- [ ] Multi-asset support
-- [ ] Portfolio management
+### Phase 2 - Production Enhancements ✅
+- [x] Real news integration (RSS, NewsAPI, Financial Modeling Prep)
+- [x] Sentiment analysis (Lexicon, VADER, TextBlob, Aggregated)
+- [x] Advanced position sizing (Kelly Criterion, ATR-based, Volatility-scaled, Optimal F)
+- [x] Portfolio analytics (15+ metrics)
+- [x] Advanced risk metrics (VaR, CVaR, Beta, Alpha, Tracking Error)
+- [x] Trade performance analysis
+- [x] Strategy parameter optimization (grid search, random search)
+- [x] Real-time monitoring dashboard
+- [x] Monte Carlo robustness testing
+- [x] Technical indicators module (RSI, MACD, Bollinger Bands, ATR, Stochastic)
+- [x] Unit test suite (78 tests)
 
 ### Phase 3 - Advanced (Future)
+- [ ] Multi-asset support & portfolio management
 - [ ] Long-term memory (vector DB)
 - [ ] Agent debate mode
 - [ ] Quant hybrid (ML models as agents)
 - [ ] Live trading integration (Alpaca, IBKR)
 - [ ] Web dashboard
 - [ ] Backtesting optimization
+
+## Testing
+
+Run the full test suite:
+
+```bash
+pip install pytest
+python -m pytest tests/ -v
+```
+
+The test suite covers:
+- **Indicators** (15 tests): SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, `add_all_indicators`, `get_indicator_summary`
+- **Market Environment** (10 tests): validation, trading, positions, equity, performance metrics
+- **LLM Layer** (5 tests): JSON extraction from text, retry logic, factory
+- **Risk Manager** (5 tests): hard limits, drawdown formula, capital checks
+- **Position Sizer** (10 tests): all strategies, zero-price guard, metadata
+- **Sentiment Analyzer** (8 tests): lexicon, aggregated, batch analysis, consistent keys
+- **Monte Carlo** (10 tests): bootstrap, GBM, output shapes, confidence intervals
 
 ## Extensions
 

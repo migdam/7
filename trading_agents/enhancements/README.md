@@ -17,14 +17,14 @@ This module provides 10 powerful enhancements to extend the base trading framewo
 9. **Monitoring Dashboard** - Real-time CLI dashboard
 10. **Monte Carlo Simulator** - Scenario testing and robustness analysis
 
-## 📦 Installation
+## Installation
 
-### Core Enhancements (Included)
-```bash
-pip install scipy
-```
+### Core Dependencies
+All core enhancements (position sizing, portfolio analytics, lexicon sentiment, trade analysis, strategy optimizer, Monte Carlo) work with the base install — `pandas`, `numpy`, and `scipy` are included in `setup.py`.
 
-### Optional Enhancements
+### Optional Dependencies
+Optional features are loaded lazily — missing packages won't break imports:
+
 ```bash
 # For market data fetching
 pip install yfinance alpha-vantage
@@ -32,7 +32,7 @@ pip install yfinance alpha-vantage
 # For news fetching
 pip install feedparser
 
-# For sentiment analysis
+# For advanced sentiment analysis
 pip install vaderSentiment textblob
 
 # For visualization
@@ -157,6 +157,8 @@ batch_result = analyze_news_batch(news_items)
 - `vader` - VADER sentiment (requires vaderSentiment)
 - `textblob` - TextBlob (requires textblob)
 - `aggregate` - Combines all available methods
+
+All analyzers return consistent keys: `sentiment`, `score`, `positive_score`, `negative_score`, `neutral_score`, `confidence`.
 
 ## 6. Risk Metrics
 
@@ -404,6 +406,7 @@ print("Complete analysis finished!")
 ## 🔧 Troubleshooting
 
 **ImportError for optional dependencies:**
+Optional features are loaded lazily so they won't break the base import. To install all optional deps:
 ```bash
 pip install yfinance feedparser vaderSentiment textblob matplotlib
 ```
